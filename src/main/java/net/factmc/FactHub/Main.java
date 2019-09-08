@@ -11,7 +11,6 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.factmc.FactCore.bukkit.InventoryControl;
 import net.factmc.FactHub.bossbar.Bossbar;
 import net.factmc.FactHub.commands.*;
 import net.factmc.FactHub.gui.*;
