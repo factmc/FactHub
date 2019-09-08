@@ -84,7 +84,6 @@ public class Main extends JavaPlugin {
     	
     	listeners.add(new Parkour());
     	
-    	listeners.add(new InventoryControl());
     	listeners.add(new ServerGUI());
     	
         for (Listener listener : listeners) {
