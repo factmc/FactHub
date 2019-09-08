@@ -60,7 +60,7 @@ public class Parkour implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onOpenCosmetics(PlayerCommandPreprocessEvent event) {
-		if (event.getMessage().equals("/cosmetics") && inParkour(event.getPlayer())) {
+		if (event.getMessage().equalsIgnoreCase("cosmetics") && inParkour(event.getPlayer())) {
 			
 			event.getPlayer().sendMessage(prefix + ChatColor.RED + "You cannot use cosmetics during the parkour. Use "
 					+ ChatColor.GOLD + "/parkour quit" + ChatColor.RED + " to quit the parkour");

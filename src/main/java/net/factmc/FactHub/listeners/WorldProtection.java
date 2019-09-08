@@ -106,6 +106,15 @@ public class WorldProtection implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK
+				&& event.getClickedBlock().getType() == Material.ENDER_CHEST) {
+			
+			event.setCancelled(true);
+			player.performCommand("crates");
+			return;
+			
+		}
+		
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK
 				|| event.getAction() == Action.RIGHT_CLICK_BLOCK
 				|| event.getAction() == Action.PHYSICAL) {
