@@ -1,7 +1,10 @@
 package net.factmc.FactHub.parkour;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -26,7 +30,6 @@ import org.spigotmc.event.entity.EntityMountEvent;
 
 import net.factmc.FactCore.CoreUtils;
 import net.factmc.FactCore.FactSQLConnector;
-import net.factmc.FactHub.Data;
 import net.factmc.FactHub.Main;
 
 public class Parkour implements Listener {
@@ -34,7 +37,7 @@ public class Parkour implements Listener {
 	public static final ItemStack PARKOUR_WAND = new ItemStack(Material.SPECTRAL_ARROW);
 	
 	// [Player player, int ticks, int checkpoint, boolean inParkour]
-	public static List<Object[]> currentRuns = new ArrayList<Object[]>();
+	public static Map<Player, Object[]> currentRuns = new HashMap<Player, Object[]>();
 	public static List<Player> allowTeleport = new ArrayList<Player>();
 	
 	public static List<Material> legalBlocks = new ArrayList<Material>();
@@ -44,23 +47,25 @@ public class Parkour implements Listener {
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
-		Object[] array = {player, 0, -1, false};
-		currentRuns.add(array);
+		Object[] array = {0, -1, false};
+		currentRuns.put(player, array);
 	}
 	
 	@EventHandler
 	public void onPlayerLeave(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
-		Object[] remove = null;
-		for (Object[] array : currentRuns) {
-			if (array[0] == player) {
-				remove = array;
-				break;
-			}
-		}
-		
-		if (remove != null) {
-			currentRuns.remove(remove);
+		currentRuns.remove(player);
+	}
+	
+	
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onOpenCosmetics(PlayerCommandPreprocessEvent event) {
+		if (event.getMessage().equals("/cosmetics") && inParkour(event.getPlayer())) {
+			
+			event.getPlayer().sendMessage(prefix + ChatColor.RED + "You cannot use cosmetics during the parkour. Use "
+					+ ChatColor.GOLD + "/parkour quit" + ChatColor.RED + " to quit the parkour");
+			event.setCancelled(true);
+			
 		}
 	}
 	
@@ -74,8 +79,8 @@ public class Parkour implements Listener {
 			
 			if (hand.getType() == PARKOUR_WAND.getType() && inParkour(player)) {
 				
-				Object[] array = Parkour.getTime(player);
-				int index = (int) array[2];
+				Object[] array = currentRuns.get(player);
+				int index = (int) array[1];
 				Location loc;
 				try {
 					loc = Parkour.getCheckpoint(index-1);
@@ -96,12 +101,10 @@ public class Parkour implements Listener {
 	
 	public static void leave(Player player) {
 		
-		Object[] array = Parkour.getTime(player);
-		Object[] newArray = {array[0], 0, -1, false};
-		Parkour.currentRuns.remove(array);
-		Parkour.currentRuns.add(newArray);
+		Object[] newArray = {0, -1, false};
+		currentRuns.put(player, newArray);
 		
-		player.getInventory().setItem(2, new ItemStack(Material.AIR));
+		player.getInventory().setItem(3, new ItemStack(Material.AIR));
 		if (player.hasPermission("essentials.fly")) {
 			player.setAllowFlight(true);
 		}
@@ -114,8 +117,8 @@ public class Parkour implements Listener {
 		boolean inParkour = inParkour(player);
 		
 		if(inParkour) {
-			Object[] array = getTime(player);
-			int checkpoint = (int) array[2];
+			Object[] array = currentRuns.get(player);
+			int checkpoint = (int) array[1];
 			
 			if (player.isOnGround()) {
 				
@@ -168,12 +171,12 @@ public class Parkour implements Listener {
 			if (getBlockLocation(player).distance(loc) < 2) {
 				if (finish) {
 					player.sendMessage(prefix + ChatColor.AQUA + "Congratulations! You reached the end of the parkour"
-							+ " in " + CoreUtils.convertToTime((int) array[1]));
+							+ " in " + CoreUtils.convertToTime((int) array[0]));
 					
 					int record = FactSQLConnector.getIntValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "PARKOURTIME");
-					if (record == 0 || (int) array[1] < record) {
+					if (record == 0 || (int) array[0] < record) {
 						player.sendMessage(ChatColor.GREEN + "That's a new record for you!");
-						FactSQLConnector.setValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "PARKOURTIME", (int) array[1]);
+						FactSQLConnector.setValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "PARKOURTIME", (int) array[0]);
 					}
 					else {
 						player.sendMessage(ChatColor.RED + "That did not beat your old record of "
@@ -190,9 +193,8 @@ public class Parkour implements Listener {
 								+ ChatColor.GOLD + "/parkour checkpoint" + ChatColor.AQUA + " to come back here");
 					}
 					
-					Object[] newArray = {array[0], array[1], checkpoint + 1, true};
-					currentRuns.remove(array);
-					currentRuns.add(newArray);
+					Object[] newArray = {array[0], checkpoint + 1, true};
+					currentRuns.put(player, newArray);
 				}
 				
 				
@@ -204,15 +206,12 @@ public class Parkour implements Listener {
 			if (getBlockLocation(player).distance(getStart()) < 2) {
 				player.setFlying(false);
 				player.setAllowFlight(false);
-				Data.setSelected(player.getUniqueId(), "SUIT", "NONE");
+				FactSQLConnector.setValue(FactSQLConnector.getOptionsTable(), player.getUniqueId(), "SUIT", "NONE");
 				
-				Object[] array = getTime(player);
-				Object[] newArray = {array[0], 0, -1, true};
+				Object[] newArray = {0, -1, true};
+				currentRuns.put(player, newArray);
 				
-				currentRuns.remove(array);
-				currentRuns.add(newArray);
-				
-				player.getInventory().setItem(2, PARKOUR_WAND);
+				player.getInventory().setItem(3, PARKOUR_WAND);
 				
 				player.sendMessage(prefix + ChatColor.AQUA + "You have started the parkour. Use "
 						+ ChatColor.GOLD + "/parkour quit" + ChatColor.AQUA + " to quit");
@@ -346,23 +345,7 @@ public class Parkour implements Listener {
 	}
 	
 	public static boolean inParkour(Player player) {
-		for (Object[] array : currentRuns) {
-			if (array[0] == player) {
-				return (boolean) array[3];
-			}
-		}
-		
-		return false;
-	}
-	
-	public static Object[] getTime(Player player) {
-		for (Object[] array : currentRuns) {
-			if (array[0] == player) {
-				return array;
-			}
-		}
-		
-		return null;
+		return (boolean) currentRuns.get(player)[2];
 	}
 	
 	private static Location getBlockLocation(Player player) {
@@ -378,10 +361,8 @@ public class Parkour implements Listener {
 	public static void load() {
 		
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			Data.setupPlayerData(player);
-			
-			Object[] array = {player, 0, -1, false};
-			Parkour.currentRuns.add(array);
+			Object[] array = {0, -1, false};
+			currentRuns.put(player, array);
 		}
 		
 		

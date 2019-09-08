@@ -91,8 +91,7 @@ public class ParkourCommand implements CommandExecutor, TabCompleter {
     			}
     			
     			else if (args[0].equalsIgnoreCase("checkpoint")) {
-    				Object[] array = Parkour.getTime(player);
-    				int index = (int) array[2];
+    				int index = (int) Parkour.currentRuns.get(player)[1];
     				Location loc;
     				try {
     					loc = Parkour.getCheckpoint(index-1);

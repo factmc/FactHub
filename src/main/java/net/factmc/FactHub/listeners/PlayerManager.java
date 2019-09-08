@@ -9,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -18,10 +20,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
+import net.factmc.FactCore.FactSQLConnector;
 import net.factmc.FactCore.bukkit.InventoryControl;
-import net.factmc.FactHub.Data;
 import net.factmc.FactHub.Main;
-import net.factmc.FactHub.gui.CosmeticsGUI;
 import net.factmc.FactHub.gui.ServerGUI;
 
 import org.bukkit.event.entity.FoodLevelChangeEvent;
@@ -31,6 +32,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class PlayerManager implements Listener {
 	
@@ -38,7 +40,46 @@ public class PlayerManager implements Listener {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			loadPlayer(player);
 		}
+		
+		new BukkitRunnable() {
+			
+			@Override
+			public void run() {
+				if (Bukkit.getPluginManager().getPlugin("FactCosmetics") != null) {
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						
+						Location loc = player.getLocation();
+			    		if (loc.getBlock().getBiome() == Biome.BADLANDS
+			    				|| getBlockAbove(loc) == Material.AIR
+			    				|| loc.add(0,-1,0).getBlock().getType() == Material.RED_SANDSTONE) {
+			    			
+			    			if (!net.factmc.FactCosmetics.Util.isSealed(player)) {
+			    				lackOxygen(player);
+			    			}
+			    			
+			    		}
+			    		
+					}
+				}
+			}
+		}.runTaskTimer(Main.getPlugin(), 0L, 20L);
 	}
+	
+	private static Material getBlockAbove(Location loc) {
+    	int x = loc.getBlockX();
+    	int y = loc.getBlockY() + 1;
+    	int z = loc.getBlockZ();
+    	
+    	for (int i = y; i < 256; i++) {
+    		Block block = loc.getWorld().getBlockAt(x, i, z);
+    		if (block.getType() != Material.AIR) {
+        		return block.getType();
+        	}
+    	}
+    	
+    	return Material.AIR;
+    }
+	
 	
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
@@ -62,7 +103,7 @@ public class PlayerManager implements Listener {
 				"&7Click to see your cosmetics");
 		
 		ItemStack hidden = new ItemStack(Material.LIME_DYE, 1);
-		if (Data.getBoolean(player.getUniqueId(), "HIDEPLAYERS")) {
+		if (FactSQLConnector.getBooleanValue(FactSQLConnector.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS")) {
 			hidden = new ItemStack(Material.GRAY_DYE, 1);
 		}
 		ItemStack players = InventoryControl.getItemStack(hidden, "&bPlayer Visibility", "&7Toggle seeing other players");
@@ -118,14 +159,14 @@ public class PlayerManager implements Listener {
 		}
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Click to see your cosmetics"))) {
 			tr = true;
-			CosmeticsGUI.open(player, player.getName());
+			player.performCommand("cosmetics");
 		}
 		
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Toggle seeing other players"))) {
 			tr = true;
 			UUID uuid = player.getUniqueId();
-			boolean hidePlayers = !Data.getBoolean(uuid, "HIDEPLAYERS");
-			Data.setBoolean(uuid, "HIDEPLAYERS", hidePlayers);
+			boolean hidePlayers = !FactSQLConnector.getBooleanValue(FactSQLConnector.getOptionsTable(), uuid, "HIDEPLAYERS");
+			FactSQLConnector.setValue(FactSQLConnector.getOptionsTable(), uuid, "HIDEPLAYERS", hidePlayers);
 			PlayerManager.updateHiddenPlayers();
 			
 			ItemStack hidden = new ItemStack(Material.LIME_DYE, 1);
@@ -227,7 +268,7 @@ public class PlayerManager implements Listener {
 	
 	public static void updateHiddenPlayers() {
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			boolean hide = Data.getBoolean(player.getUniqueId(), "HIDEPLAYERS");
+			boolean hide = FactSQLConnector.getBooleanValue(FactSQLConnector.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS");
 			
 			for (Player nextPlayer : Bukkit.getServer().getOnlinePlayers()) {
 				
