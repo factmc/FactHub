@@ -1,0 +1,66 @@
+points-per-vote: 10
+sites:
+  example:
+    name: 'Example.com'
+    url: 'http://example.com/factmc'
+    
+portals: []
+    
+parkour:
+  start: 'x,y,z,yaw,pitch'
+  checkpoints:
+  - 'x,y,z,yaw,pitch'
+  finish: 'x,y,z,yaw,pitch'
+  allow-touch: []
+  
+allow-interact:
+- OAK_BUTTON
+- SPRUCE_BUTTON
+- BIRCH_BUTTON
+- DARK_OAK_BUTTON
+- ACACIA_BUTTON
+- JUNGLE_BUTTON
+
+launchpad-power: 5
+  
+bossbar:
+  rate: 0.5
+  text:
+  - '&6FACT Minecraft Network'
+  - '&2FACT Minecraft Network'
+  - '&5FACT Minecraft Network'
+  color:
+  - 'YELLOW'
+  - 'GREEN'
+  - 'PURPLE'
+  style: SEGMENTED_10
+  
+sidebar:
+  rate: 0.2
+  title:
+  - '&eWelcome %player%'
+  - '&aW&eelcome %player%'
+  - '&aWe&elcome %player%'
+  - '&aWel&ecome %player%'
+  - '&aWelc&eome %player%'
+  - '&aWelco&eme %player%'
+  - '&aWelcom&ee %player%'
+  - '&aWelcome &e%player%'
+  - '&aWelcome %player%'
+  - '&eW&aelcome %player%'
+  - '&eWe&alcome %player%'
+  - '&eWel&acome %player%'
+  - '&eWelc&aome %player%'
+  - '&eWelco&ame %player%'
+  - '&eWelcom&ae %player%'
+  - '&eWelcome &a%player%'
+  lines:
+  - ''
+  - 'Rank: %rank%'
+  - '&r'
+  - 'Points: &e%points%'
+  - 'Total Votes: &b%votes%'
+  - '&r&r'
+  - 'Online Players: &d%online%'
+  - '&r&r&r'
+  - '&2http://factmc.net/'

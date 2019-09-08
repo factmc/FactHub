@@ -1,0 +1,55 @@
+name: FactHub
+main: net.factmc.FactHub.Main
+version: 2.4
+author: TrollyLoki
+depend: [Vault, Citizens, LuckPerms, FactCore, FactBukkit]
+soft-depend: [SuperVanish, LibsDisguises]
+
+api-version: 1.14
+
+commands:
+  facthub:
+    aliases: [fhub, fh]
+
+  cosmetics:
+  servers:
+  crates:
+  
+  parkour:
+    aliases: p
+  vote:
+  
+permissions:
+  facthub.reload:
+    default: op
+  facthub.mount:
+    description: Allows you to ride your pet
+    default: false
+  
+  facthub.use:
+    description: Allows you to interact with things in the hub
+    default: op
+    
+  facthub.escape:
+    default: op
+  facthub.oxygen:
+    default: false
+  
+  facthub.access:
+    description: Allows you to grant/revoke players access to cosmetics
+    default: op
+  facthub.cosmetics.others:
+    default: op
+  facthub.cosmetics.access-all:
+    default: false
+  
+  facthub.points:
+    default: op
+  facthub.points.get:
+    default: op
+  facthub.points.add:
+    default: op
+  facthub.points.remove:
+    default: op
+  facthub.points.set:
+    default: op
