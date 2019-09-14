@@ -202,7 +202,7 @@ public class PlayerManager implements Listener {
 			
 			for (Object[] portal : WorldProtection.portals) {
 				Location portalLoc = (Location) portal[1];
-				if (loc.distance(portalLoc) < 2.5) {
+				if (loc.distance(portalLoc) < (double) portal[2]) {
 					ServerGUI.connect(player, (String) portal[0]);
 				}
 			}

@@ -192,7 +192,7 @@ public class WorldProtection implements Listener {
 			
 			World world = Bukkit.getWorlds().get(0);
 			Location a = new Location(world, location[0], location[1], location[2]);
-			portals.add(new Object[] {server, a});
+			portals.add(new Object[] {server, a, Double.parseDouble(portal[3])});
 			
 		}
 		
