@@ -20,7 +20,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
-import net.factmc.FactCore.FactSQLConnector;
+import net.factmc.FactCore.FactSQL;
 import net.factmc.FactCore.bukkit.InventoryControl;
 import net.factmc.FactHub.Main;
 import net.factmc.FactHub.gui.ServerGUI;
@@ -103,7 +103,7 @@ public class PlayerManager implements Listener {
 				"&7Click to see your cosmetics");
 		
 		ItemStack hidden = new ItemStack(Material.LIME_DYE, 1);
-		if (FactSQLConnector.getBooleanValue(FactSQLConnector.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS")) {
+		if ((boolean) FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS")) {
 			hidden = new ItemStack(Material.GRAY_DYE, 1);
 		}
 		ItemStack players = InventoryControl.getItemStack(hidden, "&bPlayer Visibility", "&7Toggle seeing other players");
@@ -127,7 +127,7 @@ public class PlayerManager implements Listener {
 			
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOW)
 	public void inventoryItemClicked(InventoryClickEvent event) {
 		final Player player = (Player) event.getWhoClicked();
 		
@@ -165,8 +165,8 @@ public class PlayerManager implements Listener {
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Toggle seeing other players"))) {
 			tr = true;
 			UUID uuid = player.getUniqueId();
-			boolean hidePlayers = !FactSQLConnector.getBooleanValue(FactSQLConnector.getOptionsTable(), uuid, "HIDEPLAYERS");
-			FactSQLConnector.setValue(FactSQLConnector.getOptionsTable(), uuid, "HIDEPLAYERS", hidePlayers);
+			boolean hidePlayers = !(boolean) FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS");
+			FactSQL.getInstance().set(FactSQL.getOptionsTable(), uuid, "HIDEPLAYERS", hidePlayers);
 			PlayerManager.updateHiddenPlayers();
 			
 			ItemStack hidden = new ItemStack(Material.LIME_DYE, 1);
@@ -268,7 +268,7 @@ public class PlayerManager implements Listener {
 	
 	public static void updateHiddenPlayers() {
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			boolean hide = FactSQLConnector.getBooleanValue(FactSQLConnector.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS");
+			boolean hide = (boolean) FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS");
 			
 			for (Player nextPlayer : Bukkit.getServer().getOnlinePlayers()) {
 				

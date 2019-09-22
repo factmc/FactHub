@@ -22,6 +22,7 @@ allow-interact:
 - JUNGLE_BUTTON
 
 launchpad-power: 5
+launchpad-angle: -10.0
   
 bossbar:
   rate: 0.5

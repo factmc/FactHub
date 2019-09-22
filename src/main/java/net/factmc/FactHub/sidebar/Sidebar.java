@@ -23,7 +23,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 
 import net.factmc.FactCore.CoreUtils;
-import net.factmc.FactCore.FactSQLConnector;
+import net.factmc.FactCore.FactSQL;
 import net.factmc.FactHub.Main;
 
 public class Sidebar implements Listener, PluginMessageListener {
@@ -80,15 +80,7 @@ public class Sidebar implements Listener, PluginMessageListener {
 		
 		for (int i = 0; i < lines.size(); i++) {
 			
-			String raw = ChatColor.translateAlternateColorCodes('&', lines.get(i));
-			raw = raw
-					.replaceAll("%name%", player.getName())
-					.replaceAll("%displayname%", player.getDisplayName())
-					.replaceAll("%rank%", CoreUtils.getColoredRank(player.getUniqueId()))
-					.replaceAll("%votes%", String.valueOf(FactSQLConnector.getIntValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "TOTALVOTES")))
-					.replaceAll("%points%", String.valueOf(FactSQLConnector.getPoints(player.getUniqueId())))
-					.replaceAll("%online%", String.valueOf(onlinePlayers))
-					.replaceAll("%time%", getTime());
+			String raw = convertPlaceholders(lines.get(i), player);
 			
 			sidebar.getScore(raw).setScore(length);
 			length--;
@@ -114,15 +106,7 @@ public class Sidebar implements Listener, PluginMessageListener {
 		
 		for (int i = 0; i < lines.size(); i++) {
 			
-			String raw = ChatColor.translateAlternateColorCodes('&', lines.get(i));
-			raw = raw
-					.replaceAll("%name%", player.getName())
-					.replaceAll("%displayname%", player.getDisplayName())
-					.replaceAll("%rank%", CoreUtils.getColoredRank(player.getUniqueId()))
-					.replaceAll("%votes%", String.valueOf(FactSQLConnector.getIntValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "TOTALVOTES")))
-					.replaceAll("%points%", String.valueOf(FactSQLConnector.getPoints(player.getUniqueId())))
-					.replaceAll("%online%", String.valueOf(onlinePlayers))
-					.replaceAll("%time%", getTime());
+			String raw = convertPlaceholders(lines.get(i), player);
 			
 			Score score = getScore(sidebar, length);
 			if (!score.getEntry().equals(raw)) {
@@ -135,6 +119,21 @@ public class Sidebar implements Listener, PluginMessageListener {
 		}
 		
 		player.setScoreboard(board);
+		
+	}
+	
+	public static String convertPlaceholders(String string, Player player) {
+		
+		string = ChatColor.translateAlternateColorCodes('&', string);
+		string = string
+				.replaceAll("%name%", player.getName())
+				.replaceAll("%displayname%", player.getDisplayName())
+				.replaceAll("%rank%", CoreUtils.getColoredRank(player.getUniqueId()))
+				.replaceAll("%votes%", FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "TOTALVOTES").toString())
+				.replaceAll("%points%", FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "POINTS").toString())
+				.replaceAll("%online%", String.valueOf(onlinePlayers))
+				.replaceAll("%time%", getTime());
+		return string;
 		
 	}
 	

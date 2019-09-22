@@ -15,7 +15,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -29,7 +28,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.spigotmc.event.entity.EntityMountEvent;
 
 import net.factmc.FactCore.CoreUtils;
-import net.factmc.FactCore.FactSQLConnector;
+import net.factmc.FactCore.FactSQL;
 import net.factmc.FactHub.Main;
 
 public class Parkour implements Listener {
@@ -41,7 +40,7 @@ public class Parkour implements Listener {
 	public static List<Player> allowTeleport = new ArrayList<Player>();
 	
 	public static List<Material> legalBlocks = new ArrayList<Material>();
-	public static final String prefix = ChatColor.DARK_GRAY + "[" + ChatColor.BLUE
+	public static final String PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.BLUE
 			+ "Parkour" + ChatColor.DARK_GRAY + "] ";
 	
 	@EventHandler
@@ -55,18 +54,6 @@ public class Parkour implements Listener {
 	public void onPlayerLeave(PlayerQuitEvent event) {
 		Player player = event.getPlayer();
 		currentRuns.remove(player);
-	}
-	
-	
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onOpenCosmetics(PlayerCommandPreprocessEvent event) {
-		if (event.getMessage().equalsIgnoreCase("cosmetics") && inParkour(event.getPlayer())) {
-			
-			event.getPlayer().sendMessage(prefix + ChatColor.RED + "You cannot use cosmetics during the parkour. Use "
-					+ ChatColor.GOLD + "/parkour quit" + ChatColor.RED + " to quit the parkour");
-			event.setCancelled(true);
-			
-		}
 	}
 	
 	@EventHandler(priority = EventPriority.HIGH)
@@ -103,6 +90,7 @@ public class Parkour implements Listener {
 		
 		Object[] newArray = {0, -1, false};
 		currentRuns.put(player, newArray);
+		if (Bukkit.getPluginManager().getPlugin("FactCosmetics") != null) net.factmc.FactCosmetics.Data.removeInParkour(player.getUniqueId());
 		
 		player.getInventory().setItem(3, new ItemStack(Material.AIR));
 		if (player.hasPermission("essentials.fly")) {
@@ -170,13 +158,13 @@ public class Parkour implements Listener {
 			
 			if (getBlockLocation(player).distance(loc) < 2) {
 				if (finish) {
-					player.sendMessage(prefix + ChatColor.AQUA + "Congratulations! You reached the end of the parkour"
+					player.sendMessage(PREFIX + ChatColor.AQUA + "Congratulations! You reached the end of the parkour"
 							+ " in " + CoreUtils.convertToTime((int) array[0]));
 					
-					int record = FactSQLConnector.getIntValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "PARKOURTIME");
+					int record = (int) FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME");
 					if (record == 0 || (int) array[0] < record) {
 						player.sendMessage(ChatColor.GREEN + "That's a new record for you!");
-						FactSQLConnector.setValue(FactSQLConnector.getStatsTable(), player.getUniqueId(), "PARKOURTIME", (int) array[0]);
+						FactSQL.getInstance().set(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME", (int) array[0]);
 					}
 					else {
 						player.sendMessage(ChatColor.RED + "That did not beat your old record of "
@@ -188,8 +176,8 @@ public class Parkour implements Listener {
 				}
 				
 				else {
-					if (checkpoint-1 > -1) {
-						player.sendMessage(prefix + ChatColor.GREEN + "Checkpoint!" + ChatColor.AQUA + " Use "
+					if (checkpoint >= 0) {
+						player.sendMessage(PREFIX + ChatColor.GREEN + "Checkpoint!" + ChatColor.AQUA + " Use "
 								+ ChatColor.GOLD + "/parkour checkpoint" + ChatColor.AQUA + " to come back here");
 					}
 					
@@ -206,14 +194,15 @@ public class Parkour implements Listener {
 			if (getBlockLocation(player).distance(getStart()) < 2) {
 				player.setFlying(false);
 				player.setAllowFlight(false);
-				FactSQLConnector.setValue(FactSQLConnector.getOptionsTable(), player.getUniqueId(), "SUIT", "NONE");
+				//FactSQL.getInstance().set(FactSQL.getOptionsTable(), player.getUniqueId(), "SUIT", "NONE");
 				
 				Object[] newArray = {0, -1, true};
 				currentRuns.put(player, newArray);
+				if (Bukkit.getPluginManager().getPlugin("FactCosmetics") != null) net.factmc.FactCosmetics.Data.addInParkour(player.getUniqueId());
 				
 				player.getInventory().setItem(3, PARKOUR_WAND);
 				
-				player.sendMessage(prefix + ChatColor.AQUA + "You have started the parkour. Use "
+				player.sendMessage(PREFIX + ChatColor.AQUA + "You have started the parkour. Use "
 						+ ChatColor.GOLD + "/parkour quit" + ChatColor.AQUA + " to quit");
 			}
 		}
@@ -228,7 +217,7 @@ public class Parkour implements Listener {
 			if (inParkour(player)) {
 				event.setCancelled(true);
 				player.setAllowFlight(false);
-				player.sendMessage(prefix + ChatColor.RED + "You cannot fly during the parkour. Use "
+				player.sendMessage(PREFIX + ChatColor.RED + "You cannot fly during the parkour. Use "
 						+ ChatColor.GOLD + "/parkour quit" + ChatColor.RED + " to quit the parkour");
 			}
 		}
@@ -240,7 +229,7 @@ public class Parkour implements Listener {
 		Player player = event.getPlayer();
 		if (inParkour(player) && (!allowTeleport.contains(player) && event.getCause() != TeleportCause.UNKNOWN)) {
 			event.setCancelled(true);
-			player.sendMessage(prefix + ChatColor.RED + "You cannot teleport during the parkour. Use "
+			player.sendMessage(PREFIX + ChatColor.RED + "You cannot teleport during the parkour. Use "
 					+ ChatColor.GOLD + "/parkour quit" + ChatColor.RED + " to quit the parkour");
 			
 		}
@@ -260,7 +249,7 @@ public class Parkour implements Listener {
 			if (inParkour(player)) {
 				
 				event.setCancelled(true);
-				player.sendMessage(prefix + ChatColor.RED + "You cannot mount entities during the parkour. Use "
+				player.sendMessage(PREFIX + ChatColor.RED + "You cannot mount entities during the parkour. Use "
 						+ ChatColor.GOLD + "/parkour quit" + ChatColor.RED + " to quit the parkour");
 				
 			}
