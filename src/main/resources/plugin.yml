@@ -1,6 +1,6 @@
-name: FactHub
-main: net.factmc.FactHub.Main
-version: 2.5
+name: ${project.artifactId}
+main: ${project.groupId}.Main
+version: ${project.version}
 author: TrollyLoki
 depend: [LuckPerms, FactCore, FactBukkit]
 soft-depend: [SuperVanish, FactCosmetics]
