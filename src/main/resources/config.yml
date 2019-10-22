@@ -38,23 +38,9 @@ bossbar:
   
 sidebar:
   rate: 0.2
-  title:
-  - '&eWelcome %player%'
-  - '&aW&eelcome %player%'
-  - '&aWe&elcome %player%'
-  - '&aWel&ecome %player%'
-  - '&aWelc&eome %player%'
-  - '&aWelco&eme %player%'
-  - '&aWelcom&ee %player%'
-  - '&aWelcome &e%player%'
-  - '&aWelcome %player%'
-  - '&eW&aelcome %player%'
-  - '&eWe&alcome %player%'
-  - '&eWel&acome %player%'
-  - '&eWelc&aome %player%'
-  - '&eWelco&ame %player%'
-  - '&eWelcom&ae %player%'
-  - '&eWelcome &a%player%'
+  title: 'Welcome %name%'
+  first-color: 'YELLOW'
+  second-color: 'GREEN'
   lines:
   - ''
   - 'Rank: %rank%'
@@ -62,6 +48,6 @@ sidebar:
   - 'Points: &e%points%'
   - 'Total Votes: &b%votes%'
   - '&r&r'
-  - 'Online Players: &d%online%'
+  - 'Current Time: &d%time%'
   - '&r&r&r'
-  - '&2http://factmc.net/'
+  - '&2https://factmc.net/'

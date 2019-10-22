@@ -43,7 +43,7 @@ public class Parkour implements Listener {
 	public static final String PREFIX = ChatColor.DARK_GRAY + "[" + ChatColor.BLUE
 			+ "Parkour" + ChatColor.DARK_GRAY + "] ";
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		Object[] array = {0, -1, false};
@@ -159,7 +159,7 @@ public class Parkour implements Listener {
 			if (getBlockLocation(player).distance(loc) < 2) {
 				if (finish) {
 					player.sendMessage(PREFIX + ChatColor.AQUA + "Congratulations! You reached the end of the parkour"
-							+ " in " + CoreUtils.convertToTime((int) array[0]));
+							+ " in " + CoreUtils.convertTicks((int) array[0]));
 					
 					int record = (int) FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME");
 					if (record == 0 || (int) array[0] < record) {
@@ -168,7 +168,7 @@ public class Parkour implements Listener {
 					}
 					else {
 						player.sendMessage(ChatColor.RED + "That did not beat your old record of "
-								+ CoreUtils.convertToTime(record));
+								+ CoreUtils.convertTicks(record));
 					}
 					
 					leave(player);
@@ -334,6 +334,7 @@ public class Parkour implements Listener {
 	}
 	
 	public static boolean inParkour(Player player) {
+		if (!currentRuns.containsKey(player)) return false;
 		return (boolean) currentRuns.get(player)[2];
 	}
 	

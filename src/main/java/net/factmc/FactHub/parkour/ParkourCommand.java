@@ -56,7 +56,7 @@ public class ParkourCommand implements CommandExecutor, TabCompleter {
 						}
 						
 						else {
-							String time = CoreUtils.convertToTime(tickTime);
+							String time = CoreUtils.convertTicks(tickTime);
 							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + args[1] + "'s best time is: " + time);
 						}
     				}
@@ -69,7 +69,7 @@ public class ParkourCommand implements CommandExecutor, TabCompleter {
 						}
 						
 						else {
-							String time = CoreUtils.convertToTime(tickTime);
+							String time = CoreUtils.convertTicks(tickTime);
 							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + "Your best time is: " + time);
 						}
     				}

@@ -11,14 +11,12 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import net.factmc.FactHub.bossbar.Bossbar;
 import net.factmc.FactHub.commands.*;
 import net.factmc.FactHub.gui.*;
 import net.factmc.FactHub.listeners.*;
 import net.factmc.FactHub.parkour.Parkour;
 import net.factmc.FactHub.parkour.ParkourCommand;
 import net.factmc.FactHub.parkour.Timer;
-import net.factmc.FactHub.sidebar.Sidebar;
 
 public class Main extends JavaPlugin {
 	
@@ -38,9 +36,9 @@ public class Main extends JavaPlugin {
     	registerCommands();
     	saveDefaultConfig();
     	
-    	Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new Sidebar());
-        plugin.getLogger().info("Registered BungeeCord channel");
+    	/*Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+    	Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new Sidebar());
+    	plugin.getLogger().info("Registered BungeeCord channel");*/
         
         if (Bukkit.getPluginManager().getPlugin("SuperVanish") != null) sv = true;
         if (Bukkit.getPluginManager().getPlugin("LibsDisguises") == null) morphs = false;
@@ -48,8 +46,6 @@ public class Main extends JavaPlugin {
         Parkour.load();
         WorldProtection.load();
         
-        Bossbar.load();
-        plugin.getLogger().info("Loaded Bossbar");
         /*Sidebar.load();
         plugin.getLogger().info("Loaded Sidebar");*/
         
@@ -61,9 +57,6 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable() {
     	Timer.end();
-    	
-    	Bossbar.Bossbar.removeAll();
-    	plugin.getLogger().info("Unloaded Bossbar");
     	
     	Bukkit.getScheduler().cancelTasks(plugin);
     	plugin.getLogger().info("Cancelled Tasks");
@@ -77,7 +70,6 @@ public class Main extends JavaPlugin {
     	listeners.add(new PlayerManager());
     	listeners.add(new WorldProtection());
     	
-    	listeners.add(new Bossbar());
     	//listeners.add(new Sidebar());
     	listeners.add(new LaunchPads());
     	
