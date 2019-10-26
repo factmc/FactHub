@@ -36,9 +36,9 @@ public class Main extends JavaPlugin {
     	registerCommands();
     	saveDefaultConfig();
     	
-    	/*Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-    	Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new Sidebar());
-    	plugin.getLogger().info("Registered BungeeCord channel");*/
+    	Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+    	//Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new Sidebar());
+    	plugin.getLogger().info("Registered BungeeCord channel");
         
         if (Bukkit.getPluginManager().getPlugin("SuperVanish") != null) sv = true;
         if (Bukkit.getPluginManager().getPlugin("LibsDisguises") == null) morphs = false;
