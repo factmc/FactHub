@@ -2,6 +2,7 @@ package net.factmc.FactHub.listeners;
 
 import org.bukkit.event.Listener;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -182,6 +183,8 @@ public class PlayerManager implements Listener {
 	}
 	
 	
+	private List<Player> inPortal = new ArrayList<Player>();
+	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void areaControl(PlayerMoveEvent event) {
 		Player player = event.getPlayer();
@@ -200,10 +203,22 @@ public class PlayerManager implements Listener {
 		
 		if (loc.getBlock().getType() == Material.END_PORTAL) {
 			
-			for (Object[] portal : WorldProtection.portals) {
+			if (!inPortal.contains(player)) for (Object[] portal : WorldProtection.portals) {
 				Location portalLoc = (Location) portal[1];
 				if (loc.distance(portalLoc) < (double) portal[2]) {
+					inPortal.add(player);
+					player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 255, true, false, false), true);
 					ServerGUI.connect(player, (String) portal[0]);
+					
+					new BukkitRunnable() {
+						@Override
+						public void run() {
+							inPortal.remove(player);
+							if (player.isOnline()) {
+								player.teleport(Main.getSpawn());
+							}
+						}
+					}.runTaskLater(Main.getPlugin(), 60L);
 				}
 			}
 			
@@ -286,6 +301,9 @@ public class PlayerManager implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
+		for (PotionEffect pe : event.getPlayer().getActivePotionEffects()) {
+			event.getPlayer().removePotionEffect(pe.getType());
+		}
 		updateHiddenPlayers();
 	}
 	
