@@ -1,14 +1,18 @@
 package net.factmc.FactHub.commands;
 
+import java.util.List;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import net.factmc.FactCore.CoreUtils;
 import net.factmc.FactHub.gui.ServerGUI;
 import net.md_5.bungee.api.ChatColor;
 
-public class ServersCommand implements CommandExecutor {
+public class ServersCommand implements CommandExecutor, TabCompleter {
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase("servers")) {
@@ -38,7 +42,19 @@ public class ServersCommand implements CommandExecutor {
     		}
         	
         }
+        
 		return false;   
     }
+	
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		if (command.getName().equalsIgnoreCase("servers")) {
+			
+			return CoreUtils.toList();
+			
+		}
+		
+		return null;
+	}
 
 }

@@ -1,6 +1,5 @@
 package net.factmc.FactHub.parkour;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,13 +13,14 @@ import org.bukkit.entity.Player;
 
 import net.factmc.FactCore.CoreUtils;
 import net.factmc.FactCore.FactSQL;
+import net.factmc.FactCore.bukkit.BukkitMain;
 import net.factmc.FactHub.Main;
 import net.md_5.bungee.api.ChatColor;
 
 public class ParkourCommand implements CommandExecutor, TabCompleter {
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("parkour")) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("parkour")) {
         	
         	Player player = null;
         	if (sender instanceof Player) {
@@ -114,32 +114,22 @@ public class ParkourCommand implements CommandExecutor, TabCompleter {
 		return false;   
     }
 	
-	
-	
 	@Override
-	public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-		if (cmd.getName().equalsIgnoreCase("parkour")) {
-			List<String> list = new ArrayList<String>();
+	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+		if (command.getName().equalsIgnoreCase("parkour")) {
 			
-			if (args.length == 1) {
-				list.add("time");
-				list.add("quit");
-				list.add("checkpoint");
-				return list;
-			}
+			if (args.length < 2) return CoreUtils.filter(CoreUtils.toList("time", "quit", "checkpoint"), args[0]);
 			
-			else if (args.length == 2) {
-				for (Player p : Bukkit.getServer().getOnlinePlayers()) {
-					list.add(p.getName());
-				}
-				return list;
-			}
-			
-			else {
-				return list;
-			}
+			else if (args[0].equalsIgnoreCase("time")) {
 				
+				if (args.length == 2) return CoreUtils.filter(BukkitMain.toList(Bukkit.getOnlinePlayers()), args[1]);
+				
+			}
+			
+			return CoreUtils.toList();
+			
 		}
+		
 		return null;
 	}
 	
