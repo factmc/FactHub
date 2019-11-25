@@ -28,7 +28,7 @@ public class Sidebar implements Listener {
 		List<String> lines = Main.getConfigStringList("sidebar.lines");
 		long rate = (long) (Main.getPlugin().getConfig().getDouble("sidebar.rate") * 20);
 		
-		sidebar = new CustomSidebar(Main.getPlugin(), new ArrayList<Scoreboard>(), title, new ChatColor[] {first, second}, lines, rate);
+		sidebar = new CustomSidebar(Main.getPlugin(), new ArrayList<Scoreboard>(), title, first.toString(), second.toString(), lines, rate);
 		
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			loadPlayer(player);

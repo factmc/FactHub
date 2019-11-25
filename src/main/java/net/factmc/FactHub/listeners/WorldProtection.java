@@ -25,7 +25,6 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
@@ -50,18 +49,11 @@ public class WorldProtection implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onFireSpread(BlockPlaceEvent event) {
-		if (event.getBlockPlaced().getType() == Material.FIRE) {
-			event.setCancelled(true);
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.NORMAL)
 	public void onBlockBurn(BlockBurnEvent event) {
 		event.setCancelled(true);
 	}
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onBlockBurn(BlockIgniteEvent event) {
+	public void onBlockIgnite(BlockIgniteEvent event) {
 		if (event.getPlayer() == null || !event.getPlayer().hasPermission("facthub.use")) {
 			event.setCancelled(true);
 		}
@@ -82,7 +74,7 @@ public class WorldProtection implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
-	public void onHangingDestroyed(HangingBreakByEntityEvent event) {
+	public void onHangingBreakByEntity(HangingBreakByEntityEvent event) {
 		if (event.getRemover() instanceof Player) {
 			Player player = (Player) event.getRemover();
 			//Bukkit.broadcastMessage("Broke by player " + player.getName() + ". Cancel: " + !player.hasPermission("facthub.use"));
