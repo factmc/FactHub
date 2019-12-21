@@ -5,7 +5,7 @@ author: TrollyLoki
 depend: [LuckPerms, FactCore, FactBukkit]
 soft-depend: [SuperVanish, FactCosmetics]
 
-api-version: 1.14
+api-version: 1.15
 
 commands:
   facthub:

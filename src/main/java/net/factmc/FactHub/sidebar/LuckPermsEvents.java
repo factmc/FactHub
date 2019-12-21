@@ -5,24 +5,24 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import me.lucko.luckperms.LuckPerms;
-import me.lucko.luckperms.api.event.EventBus;
-import me.lucko.luckperms.api.event.user.track.UserDemoteEvent;
-import me.lucko.luckperms.api.event.user.track.UserPromoteEvent;
+import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.event.EventBus;
+import net.luckperms.api.event.user.track.UserDemoteEvent;
+import net.luckperms.api.event.user.track.UserPromoteEvent;
 
 public class LuckPermsEvents {
 	
 	public LuckPermsEvents() {
-        EventBus eventBus = LuckPerms.getApi().getEventBus();
+        EventBus eventBus = LuckPermsProvider.get().getEventBus();
         eventBus.subscribe(UserPromoteEvent.class, this::userPromoted);
         eventBus.subscribe(UserDemoteEvent.class, this::userDemoted);
     }
 	
 	public void userPromoted(UserPromoteEvent event) {
-		rankChange(event.getUser().getUuid());
+		rankChange(event.getUser().getUniqueId());
 	}
 	public void userDemoted(UserDemoteEvent event) {
-		rankChange(event.getUser().getUuid());
+		rankChange(event.getUser().getUniqueId());
 	}
 	
 	public void rankChange(UUID uuid) {
