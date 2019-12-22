@@ -10,12 +10,9 @@ api-version: 1.15
 commands:
   facthub:
     aliases: [fhub, fh]
-
-  servers:
   
   parkour:
     aliases: p
-  vote:
   
 permissions:
   facthub.reload:

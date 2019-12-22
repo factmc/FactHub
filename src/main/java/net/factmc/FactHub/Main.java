@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.factmc.FactHub.commands.*;
-import net.factmc.FactHub.gui.*;
 import net.factmc.FactHub.listeners.*;
 import net.factmc.FactHub.parkour.Parkour;
 import net.factmc.FactHub.parkour.ParkourCommand;
@@ -35,10 +34,6 @@ public class Main extends JavaPlugin {
     	registerEvents();
     	registerCommands();
     	saveDefaultConfig();
-    	
-    	Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-    	//Bukkit.getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", new Sidebar());
-    	plugin.getLogger().info("Registered BungeeCord channel");
         
         if (Bukkit.getPluginManager().getPlugin("SuperVanish") != null) sv = true;
         if (Bukkit.getPluginManager().getPlugin("LibsDisguises") == null) morphs = false;
@@ -75,8 +70,6 @@ public class Main extends JavaPlugin {
     	
     	listeners.add(new Parkour());
     	
-    	listeners.add(new ServerGUI());
-    	
         for (Listener listener : listeners) {
             Bukkit.getServer().getPluginManager().registerEvents(listener, plugin);
         }
@@ -89,9 +82,6 @@ public class Main extends JavaPlugin {
     	aliases.add("fhub"); aliases.add("fh");
     	facthubCmd.setAliases(aliases);
     	
-    	plugin.getCommand("servers").setExecutor(new ServersCommand());
-    	
-    	plugin.getCommand("vote").setExecutor(new VoteCommand());
     	plugin.getCommand("parkour").setExecutor(new ParkourCommand());
     	plugin.getCommand("parkour").setAliases(Collections.singletonList("p"));
     	plugin.getCommand("parkour").setTabCompleter(new ParkourCommand());

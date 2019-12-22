@@ -24,7 +24,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import net.factmc.FactCore.FactSQL;
 import net.factmc.FactCore.bukkit.InventoryControl;
 import net.factmc.FactHub.Main;
-import net.factmc.FactHub.gui.ServerGUI;
 
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -156,7 +155,7 @@ public class PlayerManager implements Listener {
 		}
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Click to join other servers"))) {
 			tr = true;
-			ServerGUI.open(player);
+			player.performCommand("servers");
 		}
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Click to see your cosmetics"))) {
 			tr = true;
@@ -208,7 +207,7 @@ public class PlayerManager implements Listener {
 				if (loc.distance(portalLoc) < (double) portal[2]) {
 					inPortal.add(player);
 					player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 255, true, false, false), true);
-					ServerGUI.connect(player, (String) portal[0]);
+					net.factmc.FactBukkit.gui.ServerGUI.connect(player, (String) portal[0]);
 					
 					new BukkitRunnable() {
 						@Override

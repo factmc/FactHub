@@ -1,9 +1,3 @@
-points-per-vote: 10
-sites:
-  example:
-    name: 'Example.com'
-    url: 'http://example.com/factmc'
-    
 portals: []
     
 parkour:
