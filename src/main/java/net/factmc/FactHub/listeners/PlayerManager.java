@@ -209,7 +209,7 @@ public class PlayerManager implements Listener {
 				Location portalLoc = (Location) portal[1];
 				if (loc.distance(portalLoc) < (double) portal[2]) {
 					inPortal.add(player);
-					player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 255, true, false, false), true);
+					player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 80, 255, true, false, false));
 					net.factmc.FactBukkit.gui.ServerGUI.connect(player, (String) portal[0]);
 					
 					new BukkitRunnable() {
@@ -245,7 +245,7 @@ public class PlayerManager implements Listener {
 			PotionEffect effect = new PotionEffect(PotionEffectType.WITHER, 30, 10, true, false);
 			player.removePotionEffect(PotionEffectType.WITHER);
 			
-			player.addPotionEffect(effect, false);
+			player.addPotionEffect(effect);
 		}
 	}
 	
