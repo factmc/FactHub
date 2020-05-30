@@ -161,15 +161,21 @@ public class Parkour implements Listener {
 					player.sendMessage(PREFIX + ChatColor.AQUA + "Congratulations! You reached the end of the parkour"
 							+ " in " + CoreUtils.convertTicks((int) array[0]));
 					
-					int record = (int) FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME");
-					if (record == 0 || (int) array[0] < record) {
-						player.sendMessage(ChatColor.GREEN + "That's a new record for you!");
-						FactSQL.getInstance().set(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME", (int) array[0]);
-					}
-					else {
-						player.sendMessage(ChatColor.RED + "That did not beat your old record of "
-								+ CoreUtils.convertTicks(record));
-					}
+					FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME").thenAccept((recordObj) -> {
+						
+						int record = (int) recordObj;
+						
+						if (record == 0 || (int) array[0] < record) {
+							player.sendMessage(ChatColor.GREEN + "That's a new record for you!");
+							FactSQL.getInstance().set(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME", (int) array[0]);
+						}
+						
+						else {
+							player.sendMessage(ChatColor.RED + "That did not beat your old record of "
+									+ CoreUtils.convertTicks(record));
+						}
+						
+					});
 					
 					leave(player);
 					

@@ -3,9 +3,10 @@ package net.factmc.FactHub.listeners;
 import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -102,16 +103,20 @@ public class PlayerManager implements Listener {
 				"&6Cosmetics",
 				"&7Click to see your cosmetics");
 		
-		ItemStack hidden = new ItemStack(Material.LIME_DYE, 1);
-		if ((boolean) FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS")) {
-			hidden = new ItemStack(Material.GRAY_DYE, 1);
-		}
-		ItemStack players = InventoryControl.getItemStack(hidden, "&bPlayer Visibility", "&7Toggle seeing other players");
+		ItemStack players = InventoryControl.getItemStack(Material.LIME_DYE, "&bPlayer Visibility", "&7Toggle seeing other players");
 		
 		player.getInventory().setItem(0, selector);
 		player.getInventory().setItem(4, cosmetics);
 		player.getInventory().setItem(8, profile);
 		player.getInventory().setItem(7, players);
+		
+		FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS").thenAccept((hidePlayers) -> {
+			
+			if ((boolean) hidePlayers) {
+				player.getInventory().getItem(7).setType(Material.GRAY_DYE);
+			}
+			
+		});
 	}
 	
 	@EventHandler
@@ -165,16 +170,14 @@ public class PlayerManager implements Listener {
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Toggle seeing other players"))) {
 			tr = true;
 			UUID uuid = player.getUniqueId();
-			boolean hidePlayers = !(boolean) FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS");
-			FactSQL.getInstance().set(FactSQL.getOptionsTable(), uuid, "HIDEPLAYERS", hidePlayers);
-			PlayerManager.updateHiddenPlayers();
-			
-			ItemStack hidden = new ItemStack(Material.LIME_DYE, 1);
-			if (hidePlayers) {
-				hidden = new ItemStack(Material.GRAY_DYE, 1);
-			}
-			ItemStack players = InventoryControl.getItemStack(hidden, "&bPlayer Visibility", "&7Toggle seeing other players");
-			player.getInventory().setItem(7, players);
+			FactSQL.getInstance().toggle(FactSQL.getOptionsTable(), uuid, "HIDEPLAYERS").thenAccept((hidePlayers) -> {
+				
+				PlayerManager.updateHiddenPlayers();
+				
+				if (hidePlayers) player.getInventory().getItem(7).setType(Material.LIME_DYE);
+				else player.getInventory().getItem(7).setType(Material.GRAY_DYE);
+				
+			});
 		}
 		
 		return tr;
@@ -281,21 +284,46 @@ public class PlayerManager implements Listener {
 	}
 	
 	public static void updateHiddenPlayers() {
+		
+		String where = "`UUID`=?";
+		List<UUID> uuids = new ArrayList<UUID>();
 		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-			boolean hide = (boolean) FactSQL.getInstance().get(FactSQL.getOptionsTable(), player.getUniqueId(), "HIDEPLAYERS");
+			if (!uuids.isEmpty()) where += " OR `UUID`=?";
+			uuids.add(player.getUniqueId());
+		}
+		if (uuids.isEmpty()) return;
+		
+		FactSQL.getInstance().select(FactSQL.getOptionsTable(), new String[] {"UUID", "HIDEPLAYERS"}, where, uuids.toArray()).thenAccept((list) -> {
 			
-			for (Player nextPlayer : Bukkit.getServer().getOnlinePlayers()) {
-				
-				if (hide) {
-					player.hidePlayer(Main.getPlugin(), nextPlayer);
-				}
-				else {
-					player.showPlayer(Main.getPlugin(), nextPlayer);
-				}
-				
+			Map<UUID, Boolean> hidePlayers = new HashMap<UUID, Boolean>();
+			for (Map<String, Object> map : list) {
+				UUID uuid = UUID.fromString((String) map.get("UUID"));
+				hidePlayers.put(uuid, (boolean) map.get("HIDEPLAYERS"));
 			}
 			
-		}
+			Bukkit.getScheduler().runTask(Main.getPlugin(), () -> {
+				
+				for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+					
+					if (hidePlayers.containsKey(player.getUniqueId())) {
+						for (Player nextPlayer : Bukkit.getServer().getOnlinePlayers()) {
+							
+							if (hidePlayers.get(player.getUniqueId())) {
+								player.hidePlayer(Main.getPlugin(), nextPlayer);
+							}
+							else {
+								player.showPlayer(Main.getPlugin(), nextPlayer);
+							}
+							
+						}
+					}
+					
+				}
+				
+			});
+			
+		});
+		
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)

@@ -1,7 +1,6 @@
 package net.factmc.FactHub.parkour;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,35 +42,44 @@ public class ParkourCommand implements CommandExecutor, TabCompleter {
     						return false;
     					}
     					
-    					UUID uuid = FactSQL.getInstance().getUUID(args[1]);
-    					if (uuid == null) {
-    	        			sender.sendMessage(ChatColor.RED + args[1] + " has never joined the server");
-    	        			return false;
-    	        		}
+    					FactSQL.getInstance().select(FactSQL.getStatsTable(), "PARKOURTIME", "`NAME`=?", args[1]).thenAccept((list) -> {
+    						
+    						if (list.isEmpty()) {
+        	        			sender.sendMessage(ChatColor.RED + args[1] + " has never joined the server");
+        	        			return;
+        	        		}
+    						
+    						int tickTime = (int) list.get(0);
+    						
+    						if (tickTime == 0) {
+    							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + args[1] + " has never completed the parkour");
+    						}
+    						
+    						else {
+    							String time = CoreUtils.convertTicks(tickTime);
+    							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + args[1] + "'s best time is: " + time);
+    						}
+    						
+    					});
+    					return true;
     					
-    					int tickTime = (int) FactSQL.getInstance().get(FactSQL.getStatsTable(), uuid, "PARKOURTIME");
-						
-						if (tickTime == 0) {
-							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + args[1] + " has never completed the parkour");
-						}
-						
-						else {
-							String time = CoreUtils.convertTicks(tickTime);
-							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + args[1] + "'s best time is: " + time);
-						}
     				}
     				
     				else {
-						int tickTime = (int) FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME");
-						
-						if (tickTime == 0) {
-							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + "You have never completed the parkour");
-						}
-						
-						else {
-							String time = CoreUtils.convertTicks(tickTime);
-							sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + "Your best time is: " + time);
-						}
+						FactSQL.getInstance().get(FactSQL.getStatsTable(), player.getUniqueId(), "PARKOURTIME").thenAccept((tickTimeObj) -> {
+							
+							int tickTime = (int) tickTimeObj;
+							
+							if (tickTime == 0) {
+								sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + "You have never completed the parkour");
+							}
+							
+							else {
+								String time = CoreUtils.convertTicks(tickTime);
+								sender.sendMessage(Parkour.PREFIX + ChatColor.AQUA + "Your best time is: " + time);
+							}
+							
+						});
     				}
     				
     				return true;
