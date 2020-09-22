@@ -152,35 +152,34 @@ public class PlayerManager implements Listener {
 		List<String> loreList = item.getItemMeta().getLore();
 		if (loreList == null) return false;
 		String lore = loreList.get(0);
-		boolean tr = false;
 		
 		if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Click for your stats"))) {
-			tr = true;
 			player.performCommand("stats");
+			return true;
 		}
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Click to join other servers"))) {
-			tr = true;
 			player.performCommand("servers");
+			return true;
 		}
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Click to see your cosmetics"))) {
-			tr = true;
 			player.performCommand("cosmetics");
+			return true;
 		}
 		
 		else if (lore.equalsIgnoreCase(InventoryControl.convertColors("&7Toggle seeing other players"))) {
-			tr = true;
 			UUID uuid = player.getUniqueId();
 			FactSQL.getInstance().toggle(FactSQL.getOptionsTable(), uuid, "HIDEPLAYERS").thenAccept((hidePlayers) -> {
 				
 				PlayerManager.updateHiddenPlayers();
 				
-				if (hidePlayers) player.getInventory().getItem(7).setType(Material.LIME_DYE);
-				else player.getInventory().getItem(7).setType(Material.GRAY_DYE);
+				if (hidePlayers) player.getInventory().getItem(7).setType(Material.GRAY_DYE);
+				else player.getInventory().getItem(7).setType(Material.LIME_DYE);
 				
 			});
+			return true;
 		}
 		
-		return tr;
+		return false;
 		
 	}
 	
